@@ -1,2 +1,365 @@
-# flavora-android
-FLAVORA Food Ordering App
+Écriture
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#111111">
+<title>FLAVORA | Food Delivery</title>
+<style>
+:root{--bg:#101010;--card:#1c1c1c;--gold:#d6ad55;--text:#fff;--muted:#aaa}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
+header{padding:24px 15px;text-align:center;background:linear-gradient(135deg,#171717,#302512);border-bottom:1px solid #554321}
+.logo{font-size:35px;font-weight:900;letter-spacing:3px;color:var(--gold)}
+header p{color:#ddd;margin:8px 0}
+nav{position:sticky;top:0;z-index:5;background:#151515;padding:10px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+button,select,input{font:inherit}
+button{cursor:pointer;border:0;border-radius:9px;padding:11px 14px;font-weight:bold}
+.gold{background:var(--gold);color:#171717}
+.dark{background:#303030;color:white}
+nav button{padding:9px 12px}
+.container{max-width:1000px;margin:auto;padding:15px}
+.hero{padding:22px 12px;text-align:center}
+.hero h1{color:var(--gold);font-size:27px}
+.hero p{color:#ccc;line-height:1.7}
+.section-title{color:var(--gold);border-bottom:1px solid #49402e;padding-bottom:10px;margin-top:28px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:13px}
+.card{background:var(--card);border:1px solid #333;border-radius:14px;overflow:hidden}
+.card img{width:100%;height:145px;object-fit:cover;background:#292929}
+.info{padding:12px}
+.info h3{font-size:16px;margin:0 0 8px}
+.price{color:var(--gold);font-weight:bold;margin:9px 0}
+.card select{width:100%;background:#292929;color:white;border:1px solid #555;padding:8px;border-radius:7px;margin-bottom:9px}
+.add{width:100%}
+.panel{background:#1b1b1b;border:1px solid #393939;border-radius:13px;padding:15px;margin:15px 0}
+input{width:100%;padding:12px;margin:6px 0 12px;border-radius:8px;border:1px solid #444;background:#262626;color:white}
+.cart-row{display:flex;justify-content:space-between;gap:8px;align-items:center;border-bottom:1px solid #333;padding:12px 0}
+.cart-row button{padding:6px 10px}
+.total{font-size:21px;color:var(--gold);font-weight:bold}
+.hidden{display:none!important}
+footer{text-align:center;padding:25px;color:#aaa;line-height:2}
+a{color:var(--gold)}
+.small{font-size:12px;color:var(--muted)}
+#admin{display:none}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">FLAVORA</div>
+  <p id="tagline">مذاق يبقى في الذاكرة</p>
+  <button class="gold" onclick="changeLanguage()" id="langBtn">Français 🇫🇷</button>
+</header>
+
+<nav>
+  <button class="dark" onclick="showSection('menu')" id="navMenu">🍔 القائمة</button>
+  <button class="dark" onclick="showSection('cart')" id="navCart">🛒 السلة <span id="cartCount">0</span></button>
+  <button class="dark" onclick="showSection('contact')" id="navContact">📍 اتصل بنا</button>
+  <button class="dark" onclick="showSection('admin')" id="navAdmin">🔐 الإدارة</button>
+</nav>
+
+<main class="container">
+<section id="menu">
+  <div class="hero">
+    <h1 id="heroTitle">اكتشف مذاق FLAVORA</h1>
+    <p id="heroText">وجبات محضرة بحب، وذوق يستحق التجربة.<br>اطلب وجبتك بسهولة من هاتفك.</p>
+    <p>📍 الرحمانية — التوصيل حسب المنطقة المتاحة</p>
+  </div>
+  <div id="categories"></div>
+</section>
+
+<section id="cart" class="hidden">
+  <h2 class="section-title" id="cartTitle">🛒 سلة المشتريات</h2>
+  <div class="panel" id="cartItems"></div>
+  <div class="panel">
+    <label id="nameLabel">الاسم</label>
+    <input id="customerName" placeholder="اسمك">
+    <label id="phoneLabel">رقم الهاتف</label>
+    <input id="customerPhone" type="tel" placeholder="رقم هاتفك">
+    <label id="addressLabel">عنوان التوصيل</label>
+    <input id="customerAddress" placeholder="الحي والشارع">
+    <label id="noteLabel">ملاحظات (اختياري)</label>
+    <input id="customerNote" placeholder="مثلاً: بدون صلصة">
+    <p><span id="totalLabel">المجموع</span>: <span class="total" id="total">0 DA</span></p>
+    <button class="gold" style="width:100%" onclick="sendOrder()" id="sendBtn">إرسال الطلب عبر WhatsApp</button>
+    <p class="small" id="deliveryNote">سعر التوصيل، إن وجد، يؤكد قبل الطلب.</p>
+  </div>
+</section>
+
+<section id="contact" class="hidden">
+  <h2 class="section-title" id="contactTitle">تواصل مع FLAVORA</h2>
+  <div class="panel">
+    <p>📍 الرحمانية، الجزائر</p>
+    <p>📱 WhatsApp: 0696086599</p>
+    <button class="gold" onclick="openWhatsApp()" id="contactWhats">مراسلتنا عبر WhatsApp</button>
+    <p class="small">رابط الموقع والخريطة يمكن إضافته بعد تحديد موقع FLAVORA.</p>
+  </div>
+</section>
+
+<section id="admin" class="hidden">
+  <h2 class="section-title" id="adminTitle">🔐 لوحة إدارة الطلبات</h2>
+  <div class="panel" id="adminLogin">
+    <p id="pinPrompt">أدخل رمز الإدارة</p>
+    <input id="adminPin" type="password" placeholder="رمز الدخول">
+    <button class="gold" onclick="loginAdmin()" id="loginBtn">دخول</button>
+    <p class="small">الرمز الافتراضي 2468. غيّره داخل الكود قبل النشر.</p>
+  </div>
+  <div id="adminContent" class="hidden">
+    <p class="small">هذه الطلبات محفوظة في هذا المتصفح فقط، ولا تظهر تلقائياً على هاتف آخر.</p>
+    <button class="dark" onclick="exportOrders()" id="exportBtn">تصدير الطلبات</button>
+    <button class="dark" onclick="clearOrders()" id="clearBtn">مسح الطلبات</button>
+    <div id="ordersList"></div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <strong class="logo">FLAVORA</strong><br>
+  <span id="footerText">مذاق رائع، طلب سهل.</span><br>
+  © FLAVORA
+</footer>
+
+<script>
+const WHATSAPP = "213696086599";
+const ADMIN_PIN = "2468";
+
+const products = [
+ {cat:"Burgers",ar:"برغر",fr:"Burgers",items:[
+  ["Classique","كلاسيك",200,"photo-1568901346375-23c9450c58cd"],
+  ["America","أمريكا",500,"photo-1553979459-d2229ba7433a"],
+  ["Forestier","فورستيير",500,"photo-1571091718767-18b5b1457add"],
+  ["Crispy","كريسبي",400,"photo-1606755962773-d324e0a13086"],
+  ["Spéciale","سبيسيال",500,"photo-1561758033-d89a9ad46330"]
+ ]},
+ {cat:"Tacos",ar:"تاكوس",fr:"Tacos",items:[
+  ["Poulet","دجاج",[[400,"M"],[600,"L"],[800,"XL"]],"photo-1565299624946-b28f40a0ae38"],
+  ["Viande","لحم",[[450,"M"],[700,"L"],[800,"XL"]],"photo-1626700051175-6818013e1d4f"],
+  ["Merguez","مرقاز",[[500,"M"],[700,"L"],[800,"XL"]],"photo-1565299507177-b0ac66763828"],
+  ["Foie","كبدة",[[550,"M"],[700,"L"],[850,"XL"]],"photo-1555939594-58d7cb561ad1"],
+  ["Crispy","كريسبي",[[500,"M"],[700,"L"],[800,"XL"]],"photo-1606755962773-d324e0a13086"],
+  ["Cordon Bleu","كوردون بلو",[[650,"M"],[800,"L"],[1000,"XL"]],"photo-1562967914-608f82629710"],
+  ["Spécial","خاص",[[850,"M"],[1200,"L"],[1500,"XL"]],"photo-1626082927389-6cd097cdc6ec"]
+ ]},
+ {cat:"Sandwiches",ar:"سندويتشات",fr:"Sandwichs",items:[
+  ["Mariné","ماريني",250,"photo-1553909489-cd47e0ef937f"],
+  ["Viande","لحم",300,"photo-1529006557810-274b9b2fc783"],
+  ["Merguez","مرقاز",300,"photo-1561758033-d89a9ad46330"],
+  ["Foie","كبدة",350,"photo-1555939594-58d7cb561ad1"],
+  ["Escalope","إسكالوب",350,"photo-1606755962773-d324e0a13086"],
+  ["Spécial","خاص",500,"photo-1528735602780-2552fd46c7af"]
+ ]},
+ {cat:"Gratin",ar:"غراتان",fr:"Gratins",items:[
+  ["Poulet","دجاج",350,"photo-1476124369491-e7addf5db371"],
+  ["Viande","لحم",400,"photo-1473093295043-cdd812d0e601"],
+  ["Merguez","مرقاز",400,"photo-1576402187878-974f70c890a5"],
+  ["Foie","كبدة",400,"photo-1476124369491-e7addf5db371"]
+ ]},
+ {cat:"Poutine",ar:"بوتين",fr:"Poutine",items:[
+  ["Boutine / Poutine","بوتين",600,"photo-1573080496219-bb080dd4f877"]
+ ]},
+ {cat:"Pizza",ar:"بيتزا",fr:"Pizzas",items:[
+  ["Margherita","مارغريتا",[[350,"M"],[600,"L"],[900,"XL"]],"photo-1579751626657-72bc17010498"],
+  ["Poulet","دجاج",[[400,"M"],[700,"L"],[1000,"XL"]],"photo-1565299624946-b28f40a0ae38"],
+  ["Viande","لحم",[[500,"M"],[850,"L"],[1200,"XL"]],"photo-1513104890138-7c749659a591"],
+  ["4 Fromages","أربعة أجبان",[[600,"M"],[900,"L"],[1500,"XL"]],"photo-1571407970349-bc81e7e96d47"],
+  ["Spéciale","خاصة",[[800,"M"],[1400,"L"],[2000,"XL"]],"photo-1513104890138-7c749659a591"]
+ ]}
+];
+
+let cart = [];
+let lang = "ar";
+
+function money(n){return n+" DA";}
+function safe(s){
+ return String(s).replace(/[&<>"']/g,c=>({
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+ }[c]));
+}
+function imageUrl(id){
+ return "https://images.unsplash.com/"+id+"?auto=format&fit=crop&w=600&q=75";
+}
+function renderMenu(){
+ const root=document.getElementById("categories");
+ root.innerHTML="";
+ products.forEach((group,gi)=>{
+  const title=lang==="ar"?group.ar:group.fr;
+  const section=document.createElement("section");
+  section.innerHTML='<h2 class="section-title">'+safe(title)+'</h2><div class="grid"></div>';
+  const grid=section.querySelector(".grid");
+  group.items.forEach((item,ii)=>{
+   const [name,arName,price,img]=item;
+   const choices=Array.isArray(price);
+   const displayName=lang==="ar"?arName:name;
+   const card=document.createElement("article");
+   card.className="card";
+   card.innerHTML=
+    '<img loading="lazy" src="'+imageUrl(img)+'" alt="'+safe(displayName)+'" onerror="this.style.display=\'none\'">'+
+    '<div class="info"><h3>'+safe(displayName)+'</h3>'+
+    (choices?'<select id="size-'+gi+'-'+ii+'">'+price.map(p=>'<option value="'+p[1]+'">'+p[1]+' — '+p[0]+' DA</option>').join("")+'</select>':'')+
+    '<div class="price" id="price-'+gi+'-'+ii+'">'+
+    (choices?money(price[0][0]):money(price))+'</div>'+
+    '<button class="gold add" onclick="addToCart('+gi+','+ii+')" >'+(lang==="ar"?"أضف إلى السلة":"Ajouter au panier")+'</button></div>';
+   grid.appendChild(card);
+   if(choices){
+    card.querySelector("select").addEventListener("change",e=>{
+     const option=price.find(p=>p[1]===e.target.value);
+     document.getElementById("price-"+gi+"-"+ii).textContent=money(option[0]);
+    });
+   }
+  });
+  root.appendChild(section);
+ });
+}
+function addToCart(gi,ii){
+ const group=products[gi],item=group.items[ii];
+ let size="",price=item[2];
+ if(Array.isArray(price)){
+  size=document.getElementById("size-"+gi+"-"+ii).value;
+  price=price.find(p=>p[1]===size)[0];
+ }
+ const name=lang==="ar"?item[1]:item[0];
+ const key=gi+"-"+ii+"-"+size;
+ const existing=cart.find(x=>x.key===key);
+ if(existing)existing.qty++;
+ else cart.push({key,name,price,size,qty:1});
+ renderCart();
+}
+function renderCart(){
+ document.getElementById("cartCount").textContent=cart.reduce((s,x)=>s+x.qty,0);
+ const root=document.getElementById("cartItems");
+ if(!cart.length){
+  root.textContent=lang==="ar"?"السلة فارغة. أضف وجبتك المفضلة.":"Votre panier est vide.";
+ }else{
+  root.innerHTML=cart.map((x,i)=>
+   '<div class="cart-row"><div>'+safe(x.name)+(x.size?' ('+safe(x.size)+')':'')+
+   '<br><span class="small">'+money(x.price)+' × '+x.qty+'</span></div>'+
+   '<div><button class="dark" onclick="changeQty('+i+',-1)">−</button> '+
+   '<button class="dark" onclick="changeQty('+i+',1)">+</button></div></div>'
+  ).join("");
+ }
+ document.getElementById("total").textContent=money(cart.reduce((s,x)=>s+x.price*x.qty,0));
+}
+function changeQty(i,n){
+ cart[i].qty+=n;
+ if(cart[i].qty<=0)cart.splice(i,1);
+ renderCart();
+}
+function showSection(id){
+ ["menu","cart","contact","admin"].forEach(s=>document.getElementById(s).classList.toggle("hidden",s!==id));
+ window.scrollTo({top:0,behavior:"smooth"});
+ if(id==="admin")renderOrders();
+}
+function openWhatsApp(){
+ window.open("https://wa.me/"+WHATSAPP,"_blank");
+}
+function sendOrder(){
+ if(!cart.length){alert(lang==="ar"?"السلة فارغة!":"Votre panier est vide.");return;}
+ const name=document.getElementById("customerName").value.trim();
+ const phone=document.getElementById("customerPhone").value.trim();
+ const address=document.getElementById("customerAddress").value.trim();
+ const note=document.getElementById("customerNote").value.trim();
+ if(!name||!phone||!address){
+  alert(lang==="ar"?"أدخل الاسم ورقم الهاتف والعنوان.":"Remplissez le nom, téléphone et adresse.");return;
+ }
+ const total=cart.reduce((s,x)=>s+x.price*x.qty,0);
+ const order={
+  id:Date.now(),name,phone,address,note,
+  items:cart.map(x=>({...x})),total,status:"جديد",
+  date:new Date().toLocaleString()
+ };
+ const orders=JSON.parse(localStorage.getItem("flavora_orders")||"[]");
+ orders.unshift(order);
+ localStorage.setItem("flavora_orders",JSON.stringify(orders));
+ let msg="🍽️ *NOUVELLE COMMANDE FLAVORA*%0A";
+ msg+="👤 Nom: "+encodeURIComponent(name)+"%0A";
+ msg+="📱 Téléphone: "+encodeURIComponent(phone)+"%0A";
+ msg+="📍 Adresse: "+encodeURIComponent(address)+"%0A%0A";
+ cart.forEach(x=>{
+  msg+="• "+encodeURIComponent(x.name+(x.size?" ("+x.size+")":""))+
+  " x"+x.qty+" = "+x.price*x.qty+" DA%0A";
+ });
+ msg+="%0A💰 TOTAL: "+total+" DA%0A";
+ if(note)msg+="📝 Note: "+encodeURIComponent(note)+"%0A";
+ msg+="%0AMerci de confirmer la disponibilité et les frais de livraison.";
+ window.open("https://wa.me/"+WHATSAPP+"?text="+msg,"_blank");
+}
+function loginAdmin(){
+ if(document.getElementById("adminPin").value!==ADMIN_PIN){
+  alert(lang==="ar"?"رمز غير صحيح":"Code incorrect");return;
+ }
+ document.getElementById("adminLogin").classList.add("hidden");
+ document.getElementById("adminContent").classList.remove("hidden");
+ renderOrders();
+}
+function renderOrders(){
+ if(document.getElementById("adminContent").classList.contains("hidden"))return;
+ const orders=JSON.parse(localStorage.getItem("flavora_orders")||"[]");
+ const root=document.getElementById("ordersList");
+ if(!orders.length){root.innerHTML="<p>لا توجد طلبات محفوظة على هذا الجهاز.</p>";return;}
+ root.innerHTML=orders.map(o=>
+  '<div class="panel"><b>طلب #'+o.id+'</b><p>'+safe(o.date)+'</p>'+
+  '<p>الاسم: '+safe(o.name)+' — '+safe(o.phone)+'</p>'+
+  '<p>العنوان: '+safe(o.address)+'</p>'+
+  '<p>'+o.items.map(x=>safe(x.name)+" × "+x.qty).join("، ")+'</p>'+
+  '<p class="total">'+o.total+' DA</p><p>الحالة: '+safe(o.status)+'</p>'+
+  '<button class="gold" onclick="setStatus('+o.id+',\'قيد التحضير\')">قيد التحضير</button> '+
+  '<button class="dark" onclick="setStatus('+o.id+',\'تم التسليم\')">تم التسليم</button> '+
+  '<button class="dark" onclick="deleteOrder('+o.id+')">حذف</button></div>'
+ ).join("");
+}
+function setStatus(id,status){
+ let o=JSON.parse(localStorage.getItem("flavora_orders")||"[]");
+ o=o.map(x=>x.id===id?{...x,status}:x);
+ localStorage.setItem("flavora_orders",JSON.stringify(o));renderOrders();
+}
+function deleteOrder(id){
+ if(!confirm("حذف هذا الطلب؟"))return;
+ let o=JSON.parse(localStorage.getItem("flavora_orders")||"[]").filter(x=>x.id!==id);
+ localStorage.setItem("flavora_orders",JSON.stringify(o));renderOrders();
+}
+function clearOrders(){
+ if(!confirm("مسح جميع الطلبات؟"))return;
+ localStorage.removeItem("flavora_orders");renderOrders();
+}
+function exportOrders(){
+ const data=localStorage.getItem("flavora_orders")||"[]";
+ const blob=new Blob([data],{type:"application/json"});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement("a");a.href=url;a.download="flavora-orders.json";a.click();
+ URL.revokeObjectURL(url);
+}
+function changeLanguage(){
+ lang=lang==="ar"?"fr":"ar";
+ document.documentElement.lang=lang;
+ document.documentElement.dir=lang==="ar"?"rtl":"ltr";
+ const ar=lang==="ar";
+ document.getElementById("tagline").textContent=ar?"مذاق يبقى في الذاكرة":"Le goût inoubliable";
+ document.getElementById("langBtn").textContent=ar?"Français 🇫🇷":"العربية 🇩🇿";
+ document.getElementById("navMenu").textContent=ar?"🍔 القائمة":"🍔 Menu";
+ document.getElementById("navCart").innerHTML=ar?"🛒 السلة <span id='cartCount'>0</span>":"🛒 Panier <span id='cartCount'>0</span>";
+ document.getElementById("navContact").textContent=ar?"📍 اتصل بنا":"📍 Contact";
+ document.getElementById("navAdmin").textContent=ar?"🔐 الإدارة":"🔐 Admin";
+ document.getElementById("heroTitle").textContent=ar?"اكتشف مذاق FLAVORA":"Découvrez FLAVORA";
+ document.getElementById("heroText").innerHTML=ar?"وجبات محضرة بحب، وذوق يستحق التجربة.<br>اطلب وجبتك بسهولة من هاتفك.":"Des plats préparés avec soin.<br>Commandez facilement depuis votre téléphone.";
+ document.getElementById("cartTitle").textContent=ar?"🛒 سلة المشتريات":"🛒 Votre panier";
+ document.getElementById("nameLabel").textContent=ar?"الاسم":"Nom";
+ document.getElementById("phoneLabel").textContent=ar?"رقم الهاتف":"Téléphone";
+ document.getElementById("addressLabel").textContent=ar?"عنوان التوصيل":"Adresse de livraison";
+ document.getElementById("noteLabel").textContent=ar?"ملاحظات (اختياري)":"Notes (facultatif)";
+ document.getElementById("totalLabel").textContent=ar?"المجموع":"Total";
+ document.getElementById("sendBtn").textContent=ar?"إرسال الطلب عبر WhatsApp":"Commander via WhatsApp";
+ document.getElementById("deliveryNote").textContent=ar?"سعر التوصيل، إن وجد، يؤكد قبل الطلب.":"Les frais de livraison sont à confirmer.";
+ document.getElementById("contactTitle").textContent=ar?"تواصل مع FLAVORA":"Contactez FLAVORA";
+ document.getElementById("contactWhats").textContent=ar?"مراسلتنا عبر WhatsApp":"Nous contacter sur WhatsApp";
+ document.getElementById("adminTitle").textContent=ar?"🔐 لوحة إدارة الطلبات":"🔐 Gestion des commandes";
+ document.getElementById("pinPrompt").textContent=ar?"أدخل رمز الإدارة":"Entrez le code admin";
+ document.getElementById("loginBtn").textContent=ar?"دخول":"Connexion";
+ document.getElementById("footerText").textContent=ar?"مذاق رائع، طلب سهل.":"Bon goût, commande facile.";
+ renderMenu();renderCart();
+}
+renderMenu();
+renderCart();
+</script>
+</body>
+</html>
